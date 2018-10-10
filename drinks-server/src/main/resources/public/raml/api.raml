@@ -1,156 +1,151 @@
+#%RAML 1.0
+title: Drinks Services
+version: ${project.version}
+mediaType: application/json
+baseUri: /
 
-#%RAML 0.8
-  resourceTypes:
-  - standard:
-      get?:
-        responses:          
-          400:
-            description: |
-              The request sent to the server contains data which is not as expected e.g. incorrect drink type
-          404:
-            description: |
-              The requested resource was not found                     
-      put?:
-        responses:          
-          404:
-            descrption: |
-              The requested resource on which the modification is being attempted was not found              
-      delete?:
-        responses:          
-          404:
-            descrption: | 
-              The requested resource to delete was not found 
- 
-  title: Drinks Services
-  version: ${project.version}
-  mediaType: application/json
-  baseUri: /
-  /drinks:
-    description: Provides interaction with 'Drink' resource  
-    get:
-      description: Retrieves a list of available drinks.      
-      responses:
-        200:        
-          body:
-            application/json:
-              schema: |
-                {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "type",
-                      "name"
-                    ]
-                  }
-                }
-  
-    post:
-      description: Creates a new drink. 
-      body:
-        application/json:
-          schema: | 
-            {
-              "type":"object",
-              "properties":{
-                "type":"object",
-                "name": {
-                  "type" : "string"
-                }
-              }              
-            }
+#types:
+#  drink: !include examples/drink.json
+#  drinkCollection: !include examples/drinksCollection.json
+#  healthCheck: !include examples/healtCheck.json
+#  drinkUpload: !include examples/putDrink.json
 
-    /{drinkName}:    
-      uriParameters:
-        drinkName:
-          displayName: DrinkName
-          description: |
-            The name of the drink for info
-            required: true
-            type: string
-      
-      get:
-        description: Retrieves details for a specific drink. 
-        responses:
-          200:          
-            body:
-              application/json:
-                schema: |
-                  {
-                    "$schema": "http://json-schema.org/draft-04/schema#",
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "type",
-                      "name"
-                    ]
-                  }
-  
-      put:      
-        description: Modify an existing drink. 
+
+types:
+  drink:
+    type: object
+    properties:
+      type:
+        type: string
+        description: The drink type.
+      name:
+        type: string
+        description: The drink name.
+  drinkCollection:
+    type: object
+    properties:
+      drinks:
+        type: array
+        items: drink
+  drinkUpload:
+    type: object
+    properties:
+      name:
+        type : string
+  healthCheck:
+    type: object
+    properties:
+      timestamp:
+        type: string
+      status:
+        type: string
+
+/drinks:
+  description: Provides interaction with 'Drink' resource
+  get:
+    description: Retrieves a list of available drinks.
+    responses:
+      200:
         body:
           application/json:
-            schema: |
-              { 
-                "type":"object",
-                "properties":{      
-                            
-                  "name": {
-                    "type" : "string"
-                  }
-                }
-              }
-      delete:
-        description: Delete an existing drink. 
-  /healthCheck:
-    description: Provides server health check 
+            type: drinkCollection
+      400:
+        description: |
+          The request sent to the server contains data which is not as expected e.g. incorrect drink type
+      404:
+        description: |
+          The requested resource was not found
+  post:
+    description: Creates a new drink.
+    body:
+      application/json:
+        type: !include examples/postDrink.json
+    responses:
+      201:
+        body:
+          application/json:
+            type: drink
+
+  /{drinkName}:
+    uriParameters:
+      drinkName:
+        displayName: DrinkName
+        description: |
+          The name of the drink for info
+          required: true
+          type: string
     get:
-      description: Retrieves the server's health status. 
+      description: Retrieves details for a specific drink.
       responses:
         200:
           body:
             application/json:
-              schema: |
-                {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
-                  "type": "object",
-                  "properties": {
-                    "timestamp": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "timestamp",
-                    "status"
-                  ]
-                }
-     
-            
-      
-              
-
-             
-
-        
-          
- 
- 
+              type: drink
+        404:
+          description: "Drink Name not found"
+          body:
+            text/plain:
+              example: "Drink Name not found"
+        400:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+    put:
+      description: Modify an existing drink.
+      body:
+        application/json:
+          type: drinkUpload
+      responses:
+        200:
+          body:
+            application/json:
+              type: drinkUpload
+        400:
+          description: "Bad request"
+          body:
+            text/plain:
+              example: "Bad request"
+        404:
+          description: "User not found"
+          body:
+            text/plain:
+              example: "User not found"
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+    delete:
+      description: Delete an existing drink.
+      responses:
+        204:
+          description: "No Content"
+          body:
+            text/plain:
+             example: "No Content"
+        404:
+          description: "Not Found"
+          body:
+            text/plain:
+              example: "Not found"
+/healthCheck:
+  description: Provides server health check
+  get:
+    description: Retrieves the server's health status.
+    responses:
+      200:
+        description: The health check item has been successfully retrieved.
+        body:
+          application/json:
+            type: healthCheck
+      400:
+        description: "Bad request"
+        body:
+          text/plain:
+            example: "Bad request"
+      404:
+        description: "Not found"
+        body:
+          text/plain:
+            example: "Not found"

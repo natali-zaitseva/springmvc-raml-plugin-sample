@@ -13,6 +13,7 @@
 
 package com.phoenixnap.oss.sample.server.controllers;
 
+import com.phoenixnap.oss.sample.server.rest.model.HealthCheck;
 import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import com.phoenixnap.oss.sample.server.models.enums.HealthStatusEnum;
 import com.phoenixnap.oss.sample.server.rest.HealthCheckController;
-import com.phoenixnap.oss.sample.server.rest.model.GetHealthCheckResponse;
 
 /**
  * Delegate implementation of the HealthCheck Controller to be used by the generated controller 
@@ -29,14 +29,14 @@ import com.phoenixnap.oss.sample.server.rest.model.GetHealthCheckResponse;
  *
  */
 @Component
-public class HealthCheckControllerImpl implements HealthCheckController {
+public class HealthCheckControllerImpl extends HealthCheckController {
 
     @Override
-    public ResponseEntity<GetHealthCheckResponse> getHealthCheck() {
-        GetHealthCheckResponse hcResponse = new GetHealthCheckResponse();
+    public ResponseEntity<HealthCheck> getHealthCheck() {
+        HealthCheck hcResponse = new HealthCheck();
         hcResponse.setTimestamp(new DateTime().toString());
         hcResponse.setStatus(HealthStatusEnum.OK.name());
-        return new ResponseEntity<GetHealthCheckResponse>(hcResponse,HttpStatus.OK);
+        return new ResponseEntity<>(hcResponse, HttpStatus.OK);
     }
 
 

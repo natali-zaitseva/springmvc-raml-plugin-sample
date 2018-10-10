@@ -15,6 +15,7 @@ package com.phoenixnap.oss.sample.server.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.phoenixnap.oss.sample.server.rest.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,6 @@ import com.phoenixnap.oss.sample.server.models.AlcoholicDrink;
 import com.phoenixnap.oss.sample.server.models.SoftDrink;
 import com.phoenixnap.oss.sample.server.models.enums.DrinkTypeEnum;
 import com.phoenixnap.oss.sample.server.rest.DrinkController;
-import com.phoenixnap.oss.sample.server.rest.model.CreateDrinkRequest;
-import com.phoenixnap.oss.sample.server.rest.model.GetDrinkByIdResponse;
-import com.phoenixnap.oss.sample.server.rest.model.GetDrinksResponse;
-import com.phoenixnap.oss.sample.server.rest.model.UpdateDrinkByIdRequest;
 import com.phoenixnap.oss.sample.server.services.DrinksServiceInterface;
 
 /**
@@ -42,32 +39,32 @@ import com.phoenixnap.oss.sample.server.services.DrinksServiceInterface;
  *
  */
 @Component
-public class DrinkControllerImpl implements DrinkController{
+public class DrinkControllerImpl extends DrinkController{
 
     @Autowired
     private DrinksServiceInterface drinksService;
     
     private static final Logger LOG = LoggerFactory.getLogger(DrinkController.class);
-    
+
     @Override
-    public ResponseEntity<List<GetDrinksResponse>> getDrinks() {        
-        List<GetDrinksResponse> getDrinksResponse = new ArrayList<GetDrinksResponse>();
+    public ResponseEntity<DrinkCollection> getDrinkCollection() {
+        List<Drink> getDrinksResponse = new ArrayList<Drink>();
         List<AbstractDrink> drinks = this.drinksService.getDrinks();
         
         //map each drink to an appropriate response object 
         for (AbstractDrink drink : drinks){
-            GetDrinksResponse drinkReponse = new GetDrinksResponse();
+            Drink drinkReponse = new Drink();
             drinkReponse.setName(drink.getName());
             drinkReponse.setType(drink.getDrinkTypeEnum().name());
             getDrinksResponse.add(drinkReponse);
         }
-        
+        DrinkCollection resp = new DrinkCollection(getDrinksResponse);
         LOG.info("Returning list of {} available drinks ... ", getDrinksResponse.size());
-        return new ResponseEntity<List<GetDrinksResponse>>(getDrinksResponse, HttpStatus.OK);
+        return new ResponseEntity<DrinkCollection>(resp, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity createDrink(CreateDrinkRequest createDrinkRequest) {
+    public ResponseEntity<Drink> createCreateDrinksRequest(CreateDrinksRequest createDrinkRequest) {
         LOG.debug("Entered createDrink endpoint");
         try{
             DrinkTypeEnum drinkType = DrinkTypeEnum.valueOf(String.valueOf(createDrinkRequest.getType()));
@@ -93,40 +90,41 @@ public class DrinkControllerImpl implements DrinkController{
     }
 
     @Override
-    public ResponseEntity<GetDrinkByIdResponse> getDrinkById(String drinkName) {
-        GetDrinkByIdResponse getDrinkByIdResponse = new GetDrinkByIdResponse();
+    public ResponseEntity<Drink> getDrinkByDrinkName(String drinkName) {
+        Drink getDrinkByIdResponse = new Drink();
         
         try{
             AbstractDrink drink = this.drinksService.getDrink(drinkName);            
             getDrinkByIdResponse.setName(drink.getName());
             getDrinkByIdResponse.setType(drink.getDrinkTypeEnum().name());
             LOG.info("Returning from getDrinkById");
-            return new ResponseEntity<GetDrinkByIdResponse> (getDrinkByIdResponse, HttpStatus.OK);
+            return new ResponseEntity<Drink> (getDrinkByIdResponse, HttpStatus.OK);
         }catch(DrinkNotFoundException e){
-            return new ResponseEntity<GetDrinkByIdResponse> (HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Drink> (HttpStatus.NOT_FOUND);
         }            
     }
 
     @Override
-    public ResponseEntity updateDrinkById(String drinkName, UpdateDrinkByIdRequest updateDrinkByIdRequest) {
+    public ResponseEntity<DrinkUpload> updateDrinkUpload(String drinkName, DrinkUpload updateDrinkByIdRequest) {
         try{
             this.drinksService.modifyDrink(drinkName.toLowerCase(), updateDrinkByIdRequest.getName());
             LOG.info("Returning from updateDrinkById");
             return new ResponseEntity(HttpStatus.OK);
         }catch(DrinkNotFoundException dex){
-            return new ResponseEntity<GetDrinkByIdResponse> (HttpStatus.NOT_FOUND);
+            return new ResponseEntity<DrinkUpload> (HttpStatus.NOT_FOUND);
+
         }
         
     }
 
     @Override
-    public ResponseEntity deleteDrinkById(String drinkName) {
+    public ResponseEntity deleteDrinkByDrinkName(String drinkName) {
         try{
             this.drinksService.deleteDrink(drinkName);
             LOG.info("Returning from deleteDrinkById");
             return new ResponseEntity(HttpStatus.ACCEPTED);
         }catch(DrinkNotFoundException dex){
-            return new ResponseEntity<GetDrinkByIdResponse> (HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
 }

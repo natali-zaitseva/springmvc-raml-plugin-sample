@@ -9,15 +9,6 @@
 	<version>0.0.1</version>
 	<packaging>pom</packaging>
 	
-	<developers>
-		<developer>
-			<name>Kris Galea</name>
-			<email>kristiang@phoenixnap.com</email>
-			<organization>PhoenixNAP</organization>
-      		<organizationUrl>http://www.phoenixnap.com</organizationUrl>
-		</developer>		
-	</developers>
-	
 	<licenses>
 	  <license>
 		<name>The Apache License, Version 2.0</name>
@@ -32,7 +23,7 @@
 	</parent>
 
 	<properties>			
-		<plugin-version>0.8.6</plugin-version>
+		<plugin-version>2.0.4</plugin-version>
 		<output-relative-path>target/generated-raml-mvc</output-relative-path>		
 	</properties>
 

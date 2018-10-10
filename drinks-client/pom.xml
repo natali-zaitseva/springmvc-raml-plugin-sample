@@ -12,15 +12,6 @@
 		<version>0.0.1</version>
 	</parent>
 	
-	<developers>
-		<developer>
-			<name>Kris Galea</name>
-			<email>kristiang@phoenixnap.com</email>
-			<organization>PhoenixNAP</organization>
-      		<organizationUrl>http://www.phoenixnap.com</organizationUrl>
-		</developer>		
-	</developers>
-	
 	<licenses>
 	  <license>
 		<name>The Apache License, Version 2.0</name>
@@ -141,7 +132,8 @@
 				<groupId>com.phoenixnap.oss</groupId>
 				<artifactId>springmvc-raml-plugin</artifactId>						
 				<configuration>							
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4RestTemplateClientRule</rule>
+					<!--<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4RestTemplateClientRule</rule>-->
+					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerInterfaceRule</rule>
 					<ruleConfiguration>
 						<baseUrlConfigurationPath>${url-field-annotation-path}</baseUrlConfigurationPath>
 					</ruleConfiguration>													

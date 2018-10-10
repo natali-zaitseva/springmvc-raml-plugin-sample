@@ -3,8 +3,10 @@ package com.phoenixnap.oss.sample.main;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 
+import com.phoenixnap.oss.sample.client.DrinkController;
+import com.phoenixnap.oss.sample.client.HealthCheckController;
+import com.phoenixnap.oss.sample.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,14 +14,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import com.phoenixnap.oss.sample.client.DrinkClient;
-import com.phoenixnap.oss.sample.client.HealthCheckClient;
-import com.phoenixnap.oss.sample.client.model.CreateDrinkRequest;
-import com.phoenixnap.oss.sample.client.model.GetDrinkByIdResponse;
-import com.phoenixnap.oss.sample.client.model.GetDrinksResponse;
-import com.phoenixnap.oss.sample.client.model.GetHealthCheckResponse;
-import com.phoenixnap.oss.sample.client.model.UpdateDrinkByIdRequest;
 
 /**
  * @author kristiang
@@ -32,10 +26,10 @@ public class ClientRunner
     private static final Logger LOG = LoggerFactory.getLogger(ClientRunner.class);
 
     @Autowired
-    HealthCheckClient hcClient;
+    HealthCheckController hcClient;
 
     @Autowired
-    DrinkClient drinkClient;
+    DrinkController drinkClient;
     
     /**
      * {@inheritDoc}}
@@ -45,17 +39,17 @@ public class ClientRunner
     public void run(String... args)
             throws Exception {
        //checks health of endpoint
-       ResponseEntity<GetHealthCheckResponse> healthCheck = hcClient.getHealthCheck();
+       ResponseEntity<HealthCheck> healthCheck = hcClient.getHealthCheck();
        assertTrue("Health check failed! Server is not healthy.", healthCheck.getStatusCode().equals(HttpStatus.OK)); 
        LOG.info("Health Check status : {}" , healthCheck.getStatusCode());
        
        //get list of drinks (GET list)
-       ResponseEntity<List<GetDrinksResponse>> getDrinksResponse = drinkClient.getDrinks(); 
+       ResponseEntity<DrinkCollection> getDrinksResponse = drinkClient.getDrinkCollection();
        assertTrue("Failed to perform GET request.", getDrinksResponse.getStatusCode().equals(HttpStatus.OK)); 
-       getDrinksResponse.getBody().forEach(d -> LOG.info(d.getName() + ","));        
+       getDrinksResponse.getBody().getDrinks().forEach(d -> LOG.info(d.getName() + ","));
        
        //get specific drink (GET)
-       ResponseEntity<GetDrinkByIdResponse> drink = drinkClient.getDrinkById("Martini");
+       ResponseEntity<Drink> drink = drinkClient.getDrinkByDrinkName("Martini");
        assertTrue("Failed to perform GET request.", drink.getStatusCode().equals(HttpStatus.OK)); 
        
        //output all details returned
@@ -63,28 +57,28 @@ public class ClientRunner
        LOG.info("Drink type: [{}]", drink.getBody().getType());
        
        //create drink (POST)
-       CreateDrinkRequest createDrinkRequest = new CreateDrinkRequest();
+       CreateDrinksRequest createDrinkRequest = new CreateDrinksRequest();
        createDrinkRequest.setName("Wine");
        createDrinkRequest.setType("ALCOHOL");
-       ResponseEntity createDrinkResponse = drinkClient.createDrink(createDrinkRequest);
+       ResponseEntity createDrinkResponse = drinkClient.createCreateDrinksRequest(createDrinkRequest);
        assertTrue("Failed to perform POST request.", createDrinkResponse.getStatusCode().equals(HttpStatus.ACCEPTED)); 
        LOG.info("Successfully created drink with name [{}]", createDrinkRequest.getName());
        
        //update drink (PUT)
-       UpdateDrinkByIdRequest updateDrinkByIdRequest = new UpdateDrinkByIdRequest();
+        DrinkUpload updateDrinkByIdRequest = new DrinkUpload();
        updateDrinkByIdRequest.setName("Beer");
-       ResponseEntity updateResponse = drinkClient.updateDrinkById("wine", updateDrinkByIdRequest);
+       ResponseEntity updateResponse = drinkClient.updateDrinkUpload("wine", updateDrinkByIdRequest);
        assertTrue("Failed to perform PUT request.", updateResponse.getStatusCode().equals(HttpStatus.OK));
        LOG.info("Successfully updated drink. Verifying ...");
        
        //Verify update
-       ResponseEntity<GetDrinkByIdResponse> updatedDrink = drinkClient.getDrinkById(updateDrinkByIdRequest.getName());
+       ResponseEntity<Drink> updatedDrink = drinkClient.getDrinkByDrinkName(updateDrinkByIdRequest.getName());
        boolean responseOK = updatedDrink.getStatusCode().equals(HttpStatus.OK) && updatedDrink.getBody()!=null;
        assertTrue("Failed to verify PUT request. Failed to update drink", responseOK);
        LOG.info("Successfully verified drink update!");
        
        //delete drink (DELETE)
-       ResponseEntity deleteResponse = drinkClient.deleteDrinkById(updateDrinkByIdRequest.getName());
+       ResponseEntity deleteResponse = drinkClient.deleteDrinkByDrinkName(updateDrinkByIdRequest.getName());
        assertTrue("Failed perform DELETE request.", deleteResponse.getStatusCode().equals(HttpStatus.ACCEPTED));
        LOG.info("Successfully deleted drink with name: [{}]", updateDrinkByIdRequest.getName());
     }

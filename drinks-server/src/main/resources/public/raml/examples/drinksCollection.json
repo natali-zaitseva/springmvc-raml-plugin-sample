@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Drinks Collection",
+  "type": "object",
+  "properties": {
+    "drinks": {
+      "type": "array",
+      "id": "drinksListObject",
+      "items": {
+        "type": "object",
+        "$ref": "drink.json"
+        },
+        "required": [
+          "type",
+          "name"
+        ]
+      }
+    },
+    "totalRecords": {
+      "type": "integer"
+    }
+  ,
+  "required": [
+    "items",
+    "totalRecords"
+  ]
+}

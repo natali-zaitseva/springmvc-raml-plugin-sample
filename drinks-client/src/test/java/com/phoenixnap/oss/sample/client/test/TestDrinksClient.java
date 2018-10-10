@@ -2,6 +2,11 @@ package com.phoenixnap.oss.sample.client.test;
 
 import java.util.List;
 
+import com.phoenixnap.oss.sample.client.DrinkController;
+import com.phoenixnap.oss.sample.client.model.CreateDrinksRequest;
+import com.phoenixnap.oss.sample.client.model.Drink;
+import com.phoenixnap.oss.sample.client.model.DrinkCollection;
+import com.phoenixnap.oss.sample.client.model.DrinkUpload;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,11 +21,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import com.phoenixnap.oss.sample.client.DrinkClient;
-import com.phoenixnap.oss.sample.client.model.CreateDrinkRequest;
-import com.phoenixnap.oss.sample.client.model.GetDrinkByIdResponse;
-import com.phoenixnap.oss.sample.client.model.GetDrinksResponse;
-import com.phoenixnap.oss.sample.client.model.UpdateDrinkByIdRequest;
 import com.phoenixnap.oss.sample.client.test.factory.DrinkFactory;
 import com.phoenixnap.oss.sample.main.ClientLauncher;
 import com.phoenixnap.oss.sample.server.ServerLauncher;
@@ -43,20 +43,20 @@ import feign.FeignException;
 public class TestDrinksClient {
 
 	@Autowired
-	private DrinkClient drinkClient;
+	private DrinkController drinkClient;
 
 	@Test
 	public void getDrinksIntegrationTest() throws Exception {
-		ResponseEntity<List<GetDrinksResponse>> getDrinksResponse = drinkClient.getDrinks();
+		ResponseEntity<DrinkCollection> getDrinksResponse = drinkClient.getDrinkCollection();
 
 		Assert.assertEquals(HttpStatus.OK, getDrinksResponse.getStatusCode());
 		Assert.assertNotNull(getDrinksResponse.getBody());
-		Assert.assertTrue(getDrinksResponse.getBody().size() > 0);
+		Assert.assertTrue(getDrinksResponse.getBody().getDrinks().size() > 0);
 	}
 
 	@Test
 	public void getDrinkByIdIntegrationTest_Pass() throws Exception {
-		ResponseEntity<GetDrinkByIdResponse> getDrinksResponse = drinkClient.getDrinkById("fanta");
+		ResponseEntity<Drink> getDrinksResponse = drinkClient.getDrinkByDrinkName("fanta");
 
 		Assert.assertEquals(HttpStatus.OK, getDrinksResponse.getStatusCode());
 		Assert.assertNotNull(getDrinksResponse.getBody());
@@ -67,7 +67,7 @@ public class TestDrinksClient {
 	@Test
 	public void getDrinkByIdIntegrationTest_Fail_NotFound() throws Exception {
 		try {
-			drinkClient.getDrinkById("sprite");
+			drinkClient.getDrinkByDrinkName("sprite");
 			Assert.fail("The item should not be available! Are the server and client working properly?!");
 		} catch (HttpClientErrorException hce) {
 			Assert.assertEquals(HttpStatus.NOT_FOUND, hce.getStatusCode());
@@ -80,26 +80,26 @@ public class TestDrinksClient {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void createDrinkIntegrationTest() throws Exception {
-		CreateDrinkRequest createDrinkRequest = DrinkFactory.getDrink();
+		CreateDrinksRequest createDrinkRequest = DrinkFactory.getDrink();
 
-		ResponseEntity createDrinkResponse = drinkClient.createDrink(createDrinkRequest);
+		ResponseEntity createDrinkResponse = drinkClient.createCreateDrinksRequest(createDrinkRequest);
 		Assert.assertEquals(HttpStatus.ACCEPTED, createDrinkResponse.getStatusCode());
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void updateDrinkIntegrationTest() throws Exception {
-		UpdateDrinkByIdRequest updateDrinkRequest = new UpdateDrinkByIdRequest();
+		DrinkUpload updateDrinkRequest = new DrinkUpload();
 		updateDrinkRequest.setName("Beer");
 
-		ResponseEntity updateDrinkResponse = drinkClient.updateDrinkById("Martini", updateDrinkRequest);
+		ResponseEntity updateDrinkResponse = drinkClient.updateDrinkUpload("Martini", updateDrinkRequest);
 		Assert.assertEquals(HttpStatus.OK, updateDrinkResponse.getStatusCode());
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void deleteDrinkIntegrationTest() throws Exception {
-		ResponseEntity updateDrinkResponse = drinkClient.deleteDrinkById("cocacola");
+		ResponseEntity updateDrinkResponse = drinkClient.deleteDrinkByDrinkName("cocacola");
 		Assert.assertEquals(HttpStatus.ACCEPTED, updateDrinkResponse.getStatusCode());
 	}
 
@@ -107,31 +107,30 @@ public class TestDrinksClient {
 	@Test
 	public void endToEndDrinksIntegrationTest() {
 		// get list and establish base number of items
-		ResponseEntity<List<GetDrinksResponse>> getDrinksResponseOrig = drinkClient.getDrinks();
+		ResponseEntity<DrinkCollection> getDrinksResponseOrig = drinkClient.getDrinkCollection();
 
 		// create item
-		CreateDrinkRequest createDrinkRequest = DrinkFactory.getDrink();
-		ResponseEntity createDrinkResponse = drinkClient.createDrink(createDrinkRequest);
+		CreateDrinksRequest createDrinkRequest = DrinkFactory.getDrink();
+		ResponseEntity createDrinkResponse = drinkClient.createCreateDrinksRequest(createDrinkRequest);
 		Assert.assertEquals(HttpStatus.ACCEPTED, createDrinkResponse.getStatusCode());
 
 		// get all drinks and assert they are one larger than when they started
 		// off
-		ResponseEntity<List<GetDrinksResponse>> getDrinksResponseAfterCreate = drinkClient.getDrinks();
-		Assert.assertEquals(getDrinksResponseOrig.getBody().size() + 1, getDrinksResponseAfterCreate.getBody().size());
+		ResponseEntity<DrinkCollection> getDrinksResponseAfterCreate = drinkClient.getDrinkCollection();
+		Assert.assertEquals(getDrinksResponseOrig.getBody().getDrinks().size() + 1, getDrinksResponseAfterCreate.getBody().getDrinks().size());
 
 		// get created item
-		ResponseEntity<GetDrinkByIdResponse> getDrink = drinkClient.getDrinkById(createDrinkRequest.getName());
+		ResponseEntity<Drink> getDrink = drinkClient.getDrinkByDrinkName(createDrinkRequest.getName());
 
 		// update item
-		UpdateDrinkByIdRequest updateDrinkRequest = new UpdateDrinkByIdRequest();
+		DrinkUpload updateDrinkRequest = new DrinkUpload();
 		updateDrinkRequest.setName("Beer");
 
-		ResponseEntity updateDrinkResponse = drinkClient.updateDrinkById(getDrink.getBody().getName(),
-				updateDrinkRequest);
+		ResponseEntity updateDrinkResponse = drinkClient.getDrinkByDrinkName(getDrink.getBody().getName());
 		Assert.assertEquals(HttpStatus.OK, updateDrinkResponse.getStatusCode());
 
 		// get last updated details
-		getDrink = drinkClient.getDrinkById(updateDrinkRequest.getName());
+		getDrink = drinkClient.getDrinkByDrinkName(updateDrinkRequest.getName());
 		Assert.assertEquals(HttpStatus.OK, getDrink.getStatusCode());
 		// assert the new name is retrievable
 		Assert.assertNotNull(getDrink.getBody());
@@ -139,7 +138,7 @@ public class TestDrinksClient {
 
 		// assert the item is not accessible by its old name
 		try {
-			drinkClient.getDrinkById(createDrinkRequest.getName());
+			drinkClient.getDrinkByDrinkName(createDrinkRequest.getName());
 			Assert.fail("The item should not be available! Are the server and client working properly?");
 		} catch (HttpClientErrorException hce) {
 			Assert.assertEquals(HttpStatus.NOT_FOUND, hce.getStatusCode());
@@ -149,12 +148,12 @@ public class TestDrinksClient {
 		}
 
 		// delete item
-		ResponseEntity deleteDrink = drinkClient.deleteDrinkById(updateDrinkRequest.getName());
+		ResponseEntity deleteDrink = drinkClient.getDrinkByDrinkName(updateDrinkRequest.getName());
 		Assert.assertEquals(HttpStatus.ACCEPTED, deleteDrink.getStatusCode());
 
 		// assert the item isn't available
 		try {
-			drinkClient.getDrinkById(updateDrinkRequest.getName());
+			drinkClient.getDrinkByDrinkName(updateDrinkRequest.getName());
 			Assert.fail("The item should not be available! Are the server and client working properly?");
 		} catch (HttpClientErrorException hce) {
 			Assert.assertEquals(HttpStatus.NOT_FOUND, hce.getStatusCode());
@@ -164,7 +163,7 @@ public class TestDrinksClient {
 		}
 
 		// assert list size is same as when we started off
-		ResponseEntity<List<GetDrinksResponse>> getDrinksResponseFinal = drinkClient.getDrinks();
-		Assert.assertEquals(getDrinksResponseOrig.getBody().size(), getDrinksResponseFinal.getBody().size());
+		ResponseEntity<DrinkCollection> getDrinksResponseFinal = drinkClient.getDrinkCollection();
+		Assert.assertEquals(getDrinksResponseOrig.getBody().getDrinks().size(), getDrinksResponseFinal.getBody().getDrinks().size());
 	}
 }
