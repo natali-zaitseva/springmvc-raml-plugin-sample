@@ -15,6 +15,7 @@ package com.phoenixnap.oss.sample.server.controllers;
 
 import com.phoenixnap.oss.sample.server.rest.model.HealthCheck;
 import org.joda.time.DateTime;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -29,10 +30,10 @@ import com.phoenixnap.oss.sample.server.rest.HealthCheckController;
  *
  */
 @Component
-public class HealthCheckControllerImpl extends HealthCheckController {
+public class HealthCheckControllerImpl implements HealthCheckController {
 
     @Override
-    public ResponseEntity<HealthCheck> getHealthCheck() {
+    public ResponseEntity<HealthCheck> getHealthCheck(HttpHeaders httpHeaders) {
         HealthCheck hcResponse = new HealthCheck();
         hcResponse.setTimestamp(new DateTime().toString());
         hcResponse.setStatus(HealthStatusEnum.OK.name());

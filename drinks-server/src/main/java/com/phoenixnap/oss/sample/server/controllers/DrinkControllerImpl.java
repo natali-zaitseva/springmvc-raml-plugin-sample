@@ -19,6 +19,7 @@ import com.phoenixnap.oss.sample.server.rest.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,7 @@ import com.phoenixnap.oss.sample.server.services.DrinksServiceInterface;
  *
  */
 @Component
-public class DrinkControllerImpl extends DrinkController{
+public class DrinkControllerImpl implements DrinkController{
 
     @Autowired
     private DrinksServiceInterface drinksService;
@@ -47,7 +48,7 @@ public class DrinkControllerImpl extends DrinkController{
     private static final Logger LOG = LoggerFactory.getLogger(DrinkController.class);
 
     @Override
-    public ResponseEntity<DrinkCollection> getDrinkCollection() {
+    public ResponseEntity<DrinkCollection> getDrinks(HttpHeaders httpHeaders) {
         List<Drink> getDrinksResponse = new ArrayList<Drink>();
         List<AbstractDrink> drinks = this.drinksService.getDrinks();
         
@@ -64,7 +65,7 @@ public class DrinkControllerImpl extends DrinkController{
     }
 
     @Override
-    public ResponseEntity<Drink> createCreateDrinksRequest(CreateDrinksRequest createDrinkRequest) {
+    public ResponseEntity<Drink> createDrink(CreateDrinkRequest createDrinkRequest, HttpHeaders httpHeaders) {
         LOG.debug("Entered createDrink endpoint");
         try{
             DrinkTypeEnum drinkType = DrinkTypeEnum.valueOf(String.valueOf(createDrinkRequest.getType()));
@@ -90,7 +91,7 @@ public class DrinkControllerImpl extends DrinkController{
     }
 
     @Override
-    public ResponseEntity<Drink> getDrinkByDrinkName(String drinkName) {
+    public ResponseEntity<Drink> getDrinkByName(String drinkName, HttpHeaders httpHeaders) {
         Drink getDrinkByIdResponse = new Drink();
         
         try{
@@ -105,7 +106,7 @@ public class DrinkControllerImpl extends DrinkController{
     }
 
     @Override
-    public ResponseEntity<DrinkUpload> updateDrinkUpload(String drinkName, DrinkUpload updateDrinkByIdRequest) {
+    public ResponseEntity<DrinkUpload> updateDrinkByName(String drinkName, DrinkUpload updateDrinkByIdRequest, HttpHeaders httpHeaders) {
         try{
             this.drinksService.modifyDrink(drinkName.toLowerCase(), updateDrinkByIdRequest.getName());
             LOG.info("Returning from updateDrinkById");
@@ -118,7 +119,7 @@ public class DrinkControllerImpl extends DrinkController{
     }
 
     @Override
-    public ResponseEntity deleteDrinkByDrinkName(String drinkName) {
+    public ResponseEntity deleteDrinkByName(String drinkName, HttpHeaders httpHeaders) {
         try{
             this.drinksService.deleteDrink(drinkName);
             LOG.info("Returning from deleteDrinkById");

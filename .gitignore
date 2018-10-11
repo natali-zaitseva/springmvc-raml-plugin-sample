@@ -4,5 +4,6 @@
 .project
 .settings
 .classpath
-target
+target/
+.idea/gir
 /iconv.dll

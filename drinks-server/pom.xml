@@ -98,8 +98,10 @@
 				<artifactId>springmvc-raml-plugin</artifactId>
 
 				<configuration>							
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerDecoratorRule</rule>					
-				</configuration>					
+					<rule>com.phoenixnap.oss.ramlplugin.raml2code.rules.Spring4ControllerInterfaceRule</rule>
+					<injectHttpHeadersParameter>true</injectHttpHeadersParameter>
+					<methodsNamingLogic>RESOURCES</methodsNamingLogic>
+				</configuration>
 				<executions>
 					<execution>
 						<id>generate-springmvc-controllers</id>
