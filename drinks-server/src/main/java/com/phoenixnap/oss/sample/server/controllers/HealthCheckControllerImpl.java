@@ -33,7 +33,7 @@ import com.phoenixnap.oss.sample.server.rest.HealthCheckController;
 public class HealthCheckControllerImpl implements HealthCheckController {
 
     @Override
-    public ResponseEntity<HealthCheck> getHealthCheck(HttpHeaders httpHeaders) {
+    public ResponseEntity<HealthCheck> getHealthCheck() {
         HealthCheck hcResponse = new HealthCheck();
         hcResponse.setTimestamp(new DateTime().toString());
         hcResponse.setStatus(HealthStatusEnum.OK.name());

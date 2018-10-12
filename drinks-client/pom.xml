@@ -133,7 +133,7 @@
 				<artifactId>springmvc-raml-plugin</artifactId>						
 				<configuration>							
 					<!--<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4RestTemplateClientRule</rule>-->
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerInterfaceRule</rule>
+					<rule>com.phoenixnap.oss.ramlplugin.raml2code.rules.Spring4ControllerInterfaceRule</rule>
 					<ruleConfiguration>
 						<baseUrlConfigurationPath>${url-field-annotation-path}</baseUrlConfigurationPath>
 					</ruleConfiguration>													

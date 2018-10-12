@@ -48,7 +48,7 @@ public class DrinkControllerImpl implements DrinkController{
     private static final Logger LOG = LoggerFactory.getLogger(DrinkController.class);
 
     @Override
-    public ResponseEntity<DrinkCollection> getDrinks(HttpHeaders httpHeaders) {
+    public ResponseEntity<DrinkCollection> getDrinks() {
         List<Drink> getDrinksResponse = new ArrayList<Drink>();
         List<AbstractDrink> drinks = this.drinksService.getDrinks();
         
@@ -65,7 +65,7 @@ public class DrinkControllerImpl implements DrinkController{
     }
 
     @Override
-    public ResponseEntity<Drink> createDrink(CreateDrinkRequest createDrinkRequest, HttpHeaders httpHeaders) {
+    public ResponseEntity<Drink> createDrink(CreateDrinkRequest createDrinkRequest) {
         LOG.debug("Entered createDrink endpoint");
         try{
             DrinkTypeEnum drinkType = DrinkTypeEnum.valueOf(String.valueOf(createDrinkRequest.getType()));
@@ -91,7 +91,7 @@ public class DrinkControllerImpl implements DrinkController{
     }
 
     @Override
-    public ResponseEntity<Drink> getDrinkByName(String drinkName, HttpHeaders httpHeaders) {
+    public ResponseEntity<Drink> getDrinkByName(String drinkName) {
         Drink getDrinkByIdResponse = new Drink();
         
         try{
@@ -106,7 +106,7 @@ public class DrinkControllerImpl implements DrinkController{
     }
 
     @Override
-    public ResponseEntity<DrinkUpload> updateDrinkByName(String drinkName, DrinkUpload updateDrinkByIdRequest, HttpHeaders httpHeaders) {
+    public ResponseEntity<DrinkUpload> updateDrinkByName(String drinkName, DrinkUpload updateDrinkByIdRequest) {
         try{
             this.drinksService.modifyDrink(drinkName.toLowerCase(), updateDrinkByIdRequest.getName());
             LOG.info("Returning from updateDrinkById");
@@ -119,7 +119,7 @@ public class DrinkControllerImpl implements DrinkController{
     }
 
     @Override
-    public ResponseEntity deleteDrinkByName(String drinkName, HttpHeaders httpHeaders) {
+    public ResponseEntity deleteDrinkByName(String drinkName) {
         try{
             this.drinksService.deleteDrink(drinkName);
             LOG.info("Returning from deleteDrinkById");

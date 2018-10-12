@@ -99,7 +99,7 @@
 
 				<configuration>							
 					<rule>com.phoenixnap.oss.ramlplugin.raml2code.rules.Spring4ControllerInterfaceRule</rule>
-					<injectHttpHeadersParameter>true</injectHttpHeadersParameter>
+					<!--<injectHttpHeadersParameter>true</injectHttpHeadersParameter>-->
 					<methodsNamingLogic>RESOURCES</methodsNamingLogic>
 				</configuration>
 				<executions>
